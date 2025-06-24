@@ -2,27 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Actions\TransactionAction;
 use App\Actions\TransactionListAction;
 
-class TransactionController extends Controller
+class TransactionController extends BaseController
 {
     public function index(Request $request, TransactionListAction $transactionListAction)
     {
         try {
             $response = $transactionListAction->execute($request->user()->id);
-            return response()->json([
-                'message' => 'Transactions retrieved successfully',
-                'data' => $response,
-            ]);
+            return $this->sendResponse($response, 'Transactions retrieved successfully');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to transactions list',
-                'error' => $e->getMessage(),
-            ], 500);
+            return $this->sendError('Failed to get transactions list', [$e->getMessage()]);
         }
     }
 
@@ -36,15 +29,9 @@ class TransactionController extends Controller
             $fromUser = $request->user();
             $toUser = User::find($request->user_id);
             $response = $transactionAction->execute($fromUser, $toUser, $request->amount);
-            return response()->json([
-                'message' => 'Transaction successful',
-                'data' => $response,
-            ]);
+            return $this->sendResponse($response, 'Transaction successful');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Transaction failed',
-                'error' => $e->getMessage(),
-            ], 500);
+            return $this->sendError('Transaction failed', [$e->getMessage()]);
         }
     }
     

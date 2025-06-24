@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\RechargeAction;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Api\BaseController;
 
-class RechargeController extends Controller
+class RechargeController extends BaseController
 {
     public function store(Request $request, RechargeAction $rechargeAction)
     {
@@ -19,16 +19,13 @@ class RechargeController extends Controller
             $user = $request->user();
             $rechargeAction->execute($request->user(), $request->amount);
             DB::commit();
-            return response()->json([
-                'message' => 'Recharge successful',
+            $data = [
                 'new_balance' => $user->wallet_balance,
-            ]);
+            ];
+            return $this->sendResponse($data, 'Recharge successful');
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'message' => 'Recharge failed',
-                'error' => $e->getMessage(),
-            ], 500);
+            return $this->sendError('Recharge failed', [$e->getMessage()]);
         }
     }
 }

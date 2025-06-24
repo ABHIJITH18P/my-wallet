@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Api\BaseController;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     public function register(Request $request)
     {
@@ -16,17 +16,21 @@ class AuthController extends Controller
             'phone'    => 'required|integer|unique:users',
             'password' => 'required|string|min:6',
         ]);
-        $user = User::create([
-            'name'     => $request->name,
-            'phone'    => $request->phone,
-            'password' => Hash::make($request->password),
-        ]);
-        $token = $user->createToken('api_token')->plainTextToken;
-
-        return response()->json([
-            'user'  => $user,
-            'token' => $token,
-        ]);
+        try {
+            $user = User::create([
+                'name'     => $request->name,
+                'phone'    => $request->phone,
+                'password' => Hash::make($request->password),
+            ]);
+            $token = $user->createToken('api_token')->plainTextToken;
+            $data = [
+                'user'  => $user,
+                'token' => $token,
+            ];
+            return $this->sendResponse($data, 'User registered successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('User registration failed', [$e->getMessage()]);
+        }
     }
 
     public function login(Request $request)
@@ -35,25 +39,29 @@ class AuthController extends Controller
             'phone'    => 'required',
             'password' => 'required',
         ]);
-
-        $user = User::where('phone', $request->phone)->first();
-
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        try {
+            $user = User::where('phone', $request->phone)->first();
+            if (! $user || ! Hash::check($request->password, $user->password)) {
+                return response()->json(['message' => 'Invalid credentials'], 401);
+            }
+            $token = $user->createToken('api_token')->plainTextToken;
+            $data = [
+                'user'  => $user,
+                'token' => $token,
+            ];
+            return $this->sendResponse($data, 'User logged in successfully');
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Login failed', 'error' => $e->getMessage()], 500);
         }
-
-        $token = $user->createToken('api_token')->plainTextToken;
-
-        return response()->json([
-            'user'  => $user,
-            'token' => $token,
-        ]);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-
-        return response()->json(['message' => 'Logged out']);
+        try {
+            $request->user()->tokens()->delete();
+            return $this->sendResponse([], 'User logged out successfully');
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Logout failed', 'error' => $e->getMessage()], 500);
+        }
     }
 }

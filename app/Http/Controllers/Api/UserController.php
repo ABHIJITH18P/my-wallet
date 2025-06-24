@@ -2,25 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Actions\GetAllUsersAction;
 use App\Models\User;
+use App\Http\Controllers\Api\BaseController;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
     public function index(GetAllUsersAction $getAllUsersAction)
     {
         try {
             $users = $getAllUsersAction->execute();
-            return response()->json([
-                'message' => 'Users retrieved successfully',
-                'data' => $users,
-            ]);
+            return $this->sendResponse($users, 'Users retrieved successfully');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to retrieve users',
-                'error' => $e->getMessage(),
-            ], 500);
+            return $this->sendError('Failed to retrieve users', [$e->getMessage()]);
         }
     }
 
@@ -28,15 +22,9 @@ class UserController extends Controller
     {
         try {
             $user = User::find($id);
-            return response()->json([
-                'message' => 'User retrieved successfully',
-                'data' => $user,
-            ]);
+            return $this->sendResponse($user, 'User retrieved successfully');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to retrieve user',
-                'error' => $e->getMessage(),
-            ], 500);
+            return $this->sendError('Failed to retrieve user', [$e->getMessage()]);
         }
     }
 }
