@@ -22,6 +22,7 @@ class AuthController extends BaseController
                 'phone'    => $request->phone,
                 'password' => Hash::make($request->password),
             ]);
+            $user->is_pin_set = false;
             $token = $user->createToken('api_token')->plainTextToken;
             $data = [
                 'user'  => $user,
@@ -42,8 +43,10 @@ class AuthController extends BaseController
         try {
             $user = User::where('phone', $request->phone)->first();
             if (! $user || ! Hash::check($request->password, $user->password)) {
-                return response()->json(['message' => 'Invalid credentials'], 401);
+                return $this->sendError('Error', ['Invalid credentials']);
             }
+            unset($user->wallet_balance);
+            $user->is_pin_set = $user->pin ? true : false;
             $token = $user->createToken('api_token')->plainTextToken;
             $data = [
                 'user'  => $user,
@@ -51,7 +54,7 @@ class AuthController extends BaseController
             ];
             return $this->sendResponse($data, 'User logged in successfully');
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Login failed', 'error' => $e->getMessage()], 500);
+            return $this->sendError('Login failed', [$e->getMessage()]);
         }
     }
 
@@ -61,7 +64,7 @@ class AuthController extends BaseController
             $request->user()->tokens()->delete();
             return $this->sendResponse([], 'User logged out successfully');
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Logout failed', 'error' => $e->getMessage()], 500);
+            return $this->sendError('Logout failed', [$e->getMessage()]);
         }
     }
 }

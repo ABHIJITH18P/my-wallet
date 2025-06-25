@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone')->unique();
             $table->string('password');
-            $table->string('wallet_balance')->nullable()->index();
+            $table->string('wallet_balance')->default(0)->index();
+            $table->string('pin')->nullable()->index();
             $table->rememberToken();
             $table->timestamps();
         });
