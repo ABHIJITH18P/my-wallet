@@ -26,14 +26,13 @@ class RechargeController extends BaseController
         }
     }
 
-    public function show(Request $request, $id, PinValidationService $pinValidationService)
+    public function show(Request $request, PinValidationService $pinValidationService)
     {
         $request->validate([
-            'id' => 'required|integer|exists:users,id',
             'pin' => 'required|integer|digits:6',
         ]);
         try {
-            $user = User::findOrFail($id);
+            $user = $request->user();
             $pinValidationService->validate($request->pin, $user->pin);
             $data = [
                 'balance' => $user->wallet_balance,
