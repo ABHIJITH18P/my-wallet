@@ -2,7 +2,7 @@
 
 namespace App\Actions;
 
-use App\Models\WalletHistory;
+use App\Models\TransactionHistory;
 use App\Models\WalletTransaction;
 use Exception;
 
@@ -21,18 +21,10 @@ class TransactionAction
         $fromUser->wallet_balance -= $amount;
         $fromUser->save();
 
-        WalletTransaction::create([
+        TransactionHistory::create([
             'from_user_id' => $fromUser->id,
             'to_user_id' => $toUser->id,
             'amount' => $amount,
-            'type' => WalletTransaction::TYPE_DEBIT,
         ]);
-        WalletTransaction::create([
-            'from_user_id' => $toUser->id,
-            'to_user_id' => $fromUser->id,
-            'amount' => $amount,
-            'type' => WalletTransaction::TYPE_CREDIT,
-        ]);
-        return true;
     }
 }

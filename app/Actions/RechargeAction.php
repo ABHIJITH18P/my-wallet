@@ -2,7 +2,7 @@
 
 namespace App\Actions;
 
-use App\Models\WalletHistory;
+use App\Models\RechargeHistory;
 
 class RechargeAction
 {
@@ -12,7 +12,7 @@ class RechargeAction
         $user->wallet_balance += $amount;
         $user->save();
 
-        WalletHistory::create([
+        RechargeHistory::create([
             'user_id' => $user->id,
             'amount'  => $amount,
         ]);

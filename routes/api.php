@@ -17,6 +17,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/set-pin/{id}', [SetPinNumberController::class, 'store']);
     Route::post('/recharge', [RechargeController::class, 'store']);
     Route::get('/get-balance/{id}', [RechargeController::class, 'show']);
-    Route::post('/transaction', [TransactionController::class, 'store']);
-    Route::get('/transaction-list', [TransactionController::class, 'index']);
+    Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::get('/transactions', [TransactionController::class, 'index']);
 });

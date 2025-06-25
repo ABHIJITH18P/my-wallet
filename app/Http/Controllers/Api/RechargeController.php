@@ -28,15 +28,17 @@ class RechargeController extends BaseController
             return $this->sendError('balance fetch failed', [$e->getMessage()]);
         }
     }
-    
-    public function store(Request $request, RechargeAction $rechargeAction)
+
+    public function store(Request $request, RechargeAction $rechargeAction, PinValidationService $pinValidationService)
     {
         $request->validate([
             'amount' => 'required|numeric|min:1|max:10000',
+            'pin' => 'required|integer|digits:6',
         ]);
         try {
             DB::beginTransaction();
             $user = $request->user();
+            $pinValidationService->validate($request->pin, $user->pin);
             $rechargeAction->execute($request->user(), $request->amount);
             DB::commit();
             $data = [
