@@ -9,13 +9,13 @@ use App\Http\Controllers\Api\BaseController;
 
 class SetPinNumberController extends BaseController
 {
-    public function store(Request $request, $id)
+    public function store(Request $request)
     {
         $request->validate([
             'pin' => 'required|integer|digits:6',
         ]);
         try {
-            $user = User::findOrFail($id);
+            $user = $request->user();
             $user->pin = Hash::make($request->pin);
             $user->save();
             return $this->sendResponse([], 'Pin number set successfully');
