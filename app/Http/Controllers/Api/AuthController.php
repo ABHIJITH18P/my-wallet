@@ -43,7 +43,7 @@ class AuthController extends BaseController
         try {
             $user = User::where('phone', $request->phone)->first();
             if (! $user || ! Hash::check($request->password, $user->password)) {
-                return $this->sendError('Error', ['Invalid credentials']);
+                return response()->json(['message' => 'Invalid credentials'], 401);
             }
             unset($user->wallet_balance);
             $user->is_pin_set = $user->pin ? true : false;
