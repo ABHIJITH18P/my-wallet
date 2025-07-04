@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\RechargeController;
 use App\Http\Controllers\Api\SetPinNumberController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\RecentUsersController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -19,7 +20,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/recharge', [RechargeController::class, 'store']);
     Route::get('/get-recharges', [RechargeController::class, 'index']);
     Route::post('/get-balance', [RechargeController::class, 'show']);
-    Route::post('/transactions', [TransactionController::class, 'store']);
-    Route::get('/transactions', [TransactionController::class, 'index']);
-    Route::get('/transactions/{id}', [TransactionController::class, 'show']);
+    Route::prefix('transactions')->group(function () {
+        Route::get('/', [TransactionController::class, 'index']);
+        Route::post('/', [TransactionController::class, 'store']);
+        Route::get('/recent-users', [RecentUsersController::class, 'index']);
+        Route::get('/{id}', [TransactionController::class, 'show']);
+    });
 });
