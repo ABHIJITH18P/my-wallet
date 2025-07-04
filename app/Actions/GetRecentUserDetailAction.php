@@ -40,6 +40,7 @@ class GetRecentUserDetailAction
             ->filter();
         if ($limit)
             $data = $data->take($limit);
-        return $data;
+
+        return $data->values()->toArray();
     }
 }
